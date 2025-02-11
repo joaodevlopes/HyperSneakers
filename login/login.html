@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000, #ffffff);
+            margin: 0;
+            position: relative;
+        }
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 320px;
+        }
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+        }
+        .btn-primary {  background: linear-gradient(135deg, #000000, #7c7878); }
+        .btn-secondary {  background: linear-gradient(135deg, #000000, #8d8888); }
+        .btn-danger {  background: linear-gradient(135deg, #000000, #8b8787); }
+    </style>
+</head>
+<body>
+
+    <a href="/index.html" class="back-arrow">&#8592; Voltar</a>
+
+   <main>
+       <div class="card" id="auth-container">
+           <h2 id="form-title">Login</h2>
+           <form id="login-form">
+               <input type="email" id="email" placeholder="E-mail" required autocomplete="off">
+               <input type="password" id="password" placeholder="Senha" required>
+               <button type="submit" class="btn-primary">Entrar</button>
+               <button type="button" class="btn-secondary" onclick="toggleForm()">Criar Conta</button>
+           </form>
+           <form id="register-form" style="display: none;">
+               <input type="text" id="name" placeholder="Nome" required autocomplete="off">
+               <input type="email" id="register-email" placeholder="E-mail" required autocomplete="off">
+               <input type="password" id="register-password" placeholder="Senha" required>
+               <button type="submit" class="btn-primary">Criar Conta</button>
+               <button type="button" class="btn-secondary" onclick="toggleForm()">Fazer Login</button>
+           </form>
+       </div>
+       <div class="card" id="profile-container" style="display: none;">
+           <h2>Perfil</h2>
+           <p><strong>Nome:</strong> <span id="profile-name"></span></p>
+           <p><strong>Email:</strong> <span id="profile-email"></span></p>
+           <input type="text" id="edit-name" placeholder="Novo nome">
+           <button class="btn-secondary" onclick="updateProfile()">Atualizar Nome</button>
+           <input type="email" id="edit-email" placeholder="Novo e-mail">
+           <button class="btn-secondary" onclick="updateEmail()">Atualizar E-mail</button>
+           <button class="btn-danger" onclick="logout()">Sair</button>
+       </div>
+   </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedUser = JSON.parse(localStorage.getItem("user"));
+            if (savedUser) {
+                showProfile(savedUser);
+            }
+        });
+
+        function toggleForm() {
+            const loginForm = document.getElementById("login-form");
+            const registerForm = document.getElementById("register-form");
+            const formTitle = document.getElementById("form-title");
+
+            loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+            registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+            formTitle.innerText = loginForm.style.display === "none" ? "Criar Conta" : "Login";
+        }
+
+        document.getElementById("login-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            handleLogin();
+        });
+
+        document.getElementById("register-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            handleRegister();
+        });
+
+        function handleLogin() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const savedUser = JSON.parse(localStorage.getItem("user"));
+
+            if (savedUser && savedUser.email === email && savedUser.password === password) {
+                localStorage.setItem("loggedIn", "true");
+                showProfile(savedUser);
+            } else {
+                alert("Email ou senha incorretos!");
+            }
+        }
+
+        function handleRegister() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("register-email").value;
+            const password = document.getElementById("register-password").value;
+
+            if (!name || !email || !password) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const existingUser = JSON.parse(localStorage.getItem("user"));
+            if (existingUser && existingUser.email === email) {
+                alert("E-mail já cadastrado!");
+                return;
+            }
+
+            const newUser = { name, email, password };
+            localStorage.setItem("user", JSON.stringify(newUser));
+            localStorage.setItem("loggedIn", "true");
+
+            alert("Conta criada com sucesso!");
+            showProfile(newUser);
+        }
+
+        function showProfile(user) {
+            document.getElementById("auth-container").style.display = "none";
+            document.getElementById("profile-container").style.display = "block";
+            document.getElementById("profile-name").innerText = user.name;
+            document.getElementById("profile-email").innerText = user.email;
+        }
+
+        function updateEmail() {
+            const newEmail = document.getElementById("edit-email").value;
+            let user = JSON.parse(localStorage.getItem("user"));
+
+            if (newEmail.trim() !== "") {
+                user.email = newEmail;
+                localStorage.setItem("user", JSON.stringify(user));
+                document.getElementById("profile-email").innerText = newEmail;
+                alert("E-mail atualizado com sucesso!");
+            } else {
+                alert("Digite um e-mail válido!");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedIn");
+            document.getElementById("profile-container").style.display = "none";
+            document.getElementById("auth-container").style.display = "block";
+        }
+
+        function logout() {
+    localStorage.removeItem("loggedIn"); // Remove status de login
+    localStorage.removeItem("user"); // Opcional: remove os dados do usuário (se quiser que ele tenha que se registrar novamente)
+    window.location.href = "/index.html"; // Redireciona para a página inicial
+}
+
+
+    </script>
+</body>
+</html>
