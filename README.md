@@ -8,7 +8,7 @@ Criar uma interface moderna e funcional para simular a experiência de navegaç�
 
 ## 🚀 Link do projeto
 
-👉 [Acesse o site ao vivo](https://dulcet-cactus-7b58a4.netlify.app)
+👉 [Acesse o site ao vivo](https://dulcet-cactus-7b584d.netlify.app/)
 
 ## 🛠️ Tecnologias utilizadas
 
